@@ -1,529 +1,699 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Каталог моделей для выставок</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Продвижение Моделей — Девушки для выставок и мероприятий</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display:wght@700&display=swap');
 
-  :root {
-    --primary-color: #005f73;
-    --secondary-color: #0a9396;
-    --background-color: #e9f1f7;
-    --text-color: #222;
-    --text-muted: #555;
-    --modal-bg: rgba(0, 0, 0, 0.8);
-    --border-radius: 10px;
-    --transition: 0.3s ease;
-  }
+    :root {
+      --primary-color: #d6336c;
+      --secondary-color: #1f2937;
+      --background-color: #f9fafb;
+      --text-color: #111827;
+      --accent-color: #f43f5e;
+      --light-gray: #e5e7eb;
+      --max-width: 1200px;
+    }
 
-  * {
-    box-sizing: border-box;
-  }
+    * {
+      box-sizing: border-box;
+    }
 
-  body {
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    background-color: var(--background-color);
-    color: var(--text-color);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 2rem 1rem;
-  }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      color: var(--text-color);
+      background-color: var(--background-color);
+      margin: 0;
+      line-height: 1.6;
+      scroll-behavior: smooth;
+    }
 
-  h1 {
-    margin-bottom: 2rem;
-    font-weight: 600;
-    font-size: 2.5rem;
-    color: var(--primary-color);
-    user-select: none;
-    text-align: center;
-  }
+    header {
+      background-color: var(--secondary-color);
+      color: white;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgb(0 0 0 / 0.15);
+    }
 
-  #catalog {
-    display: grid;
-    grid-template-columns: repeat(auto-fit,minmax(260px,1fr));
-    gap: 1.5rem;
-    width: 100%;
-    max-width: 1200px;
-  }
+    .container {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 20px;
+    }
 
-  .model-card {
-    background: white;
-    border-radius: var(--border-radius);
-    overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    transition: transform var(--transition);
-    outline-offset: 4px;
-  }
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 60px;
+      position: relative;
+    }
 
-  .model-card:hover,
-  .model-card:focus {
-    transform: scale(1.03);
-    outline: 2px solid var(--secondary-color);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-  }
-
-  .model-thumb {
-    width: 100%;
-    aspect-ratio: 4 / 3;
-    object-fit: cover;
-    user-select: none;
-  }
-
-  .model-info {
-    padding: 1rem 1.25rem;
-    text-align: center;
-  }
-
-  .model-name {
-    font-weight: 600;
-    font-size: 1.3rem;
-    margin: 0 0 0.5rem;
-    user-select: none;
-    color: var(--secondary-color);
-  }
-
-  .model-attributes {
-    font-size: 0.9rem;
-    color: var(--text-muted);
-    line-height: 1.5;
-    white-space: pre-line;
-  }
-
-  /* Modal Styles */
-  #modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: var(--modal-bg);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    padding: 1.5rem;
-  }
-
-  #modal.active {
-    display: flex;
-  }
-
-  #modalContent {
-    position: relative;
-    max-width: 90vw;
-    max-height: 90vh;
-    background: white;
-    border-radius: var(--border-radius);
-    overflow: hidden;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-    display: flex;
-    flex-direction: column;
-  }
-
-  #modalHeader {
-    padding: 1rem 1.5rem;
-    background: var(--secondary-color);
-    color: white;
-    font-weight: 600;
-    font-size: 1.5rem;
-    user-select: none;
-  }
-
-  #modalBody {
-    flex-grow: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    background: #f0f4f8;
-  }
-
-  #modalImage {
-    max-width: 100%;
-    max-height: 80vh;
-    user-select: none;
-    border-radius: 0 0 var(--border-radius) var(--border-radius);
-    object-fit: contain;
-  }
-
-  /* Navigation Buttons */
-  .navBtn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(0,0,0,0.4);
-    border: none;
-    color: white;
-    font-size: 2rem;
-    width: 3.5rem;
-    height: 3.5rem;
-    border-radius: 50%;
-    cursor: pointer;
-    user-select: none;
-    transition: background-color var(--transition);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .navBtn:hover,
-  .navBtn:focus {
-    background: rgba(0,0,0,0.7);
-    outline: none;
-  }
-
-  #prevBtn {
-    left: 0.7rem;
-  }
-
-  #nextBtn {
-    right: 0.7rem;
-  }
-
-  /* Close button */
-  #closeBtn {
-    position: absolute;
-    top: 0.7rem;
-    right: 0.7rem;
-    background: transparent;
-    border: none;
-    font-size: 2rem;
-    color: white;
-    cursor: pointer;
-    user-select: none;
-    transition: color var(--transition);
-  }
-
-  #closeBtn:hover,
-  #closeBtn:focus {
-    color: #ff6b6b;
-    outline: none;
-  }
-
-  @media (max-width: 600px) {
-    h1 {
+    nav .logo {
+      font-family: 'Playfair Display', serif;
       font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      cursor: default;
     }
-    .navBtn {
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 25px;
+      margin: 0;
+      padding: 0;
+      transition: max-height 0.3s ease;
+      overflow: visible;
+    }
+
+    nav ul li {
+      margin: 0;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s ease;
+      font-size: 0.95rem;
+    }
+
+    nav a:hover,
+    nav a:focus {
+      color: var(--accent-color);
+      outline: none;
+    }
+
+    /* Mobile menu button as three dots */
+    .menu-toggle {
+      display: none;
+      width: 28px;
+      height: 28px;
+      cursor: pointer;
+      position: relative;
+      user-select: none;
+    }
+
+    /* Three dots icon */
+    .menu-toggle::before,
+    .menu-toggle::after,
+    .menu-toggle span {
+      content: '';
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background-color: white;
+      border-radius: 50%;
+      left: 50%;
+      transform: translateX(-50%);
+      transition: background-color 0.3s ease;
+    }
+
+    .menu-toggle::before {
+      top: 6px;
+    }
+
+    .menu-toggle span {
+      top: 11px;
+    }
+
+    .menu-toggle::after {
+      top: 16px;
+    }
+
+    nav.open ul {
+      max-height: 300px;
+      overflow: visible;
+    }
+
+    nav ul.mobile-hidden {
+      max-height: 0;
+      overflow: hidden;
+      flex-direction: column;
+      gap: 10px;
+      display: flex;
+    }
+
+    main {
+      padding-top: 80px;
+    }
+
+    section {
+      padding: 60px 0;
+      border-bottom: 1px solid var(--light-gray);
+    }
+
+    h2.section-title {
+      font-family: 'Playfair Display', serif;
+      text-align: center;
+      font-size: 2.8rem;
+      margin-bottom: 25px;
+      color: var(--secondary-color);
+    }
+
+    /* О нас */
+    #about p {
+      max-width: 800px;
+      margin: 0 auto;
+      font-size: 1.1rem;
+      color: var(--secondary-color);
+      text-align: center;
+    }
+
+    /* Наши работы */
+    #works .gallery {
+      display: grid;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    #works .gallery img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 10px;
+      box-shadow: 0 4px 16px rgb(0 0 0 / 0.1);
+      transition: transform 0.3s ease;
+      cursor: pointer;
+    }
+
+    #works .gallery img:hover,
+    #works .gallery img:focus {
+      transform: scale(1.05);
+      outline: none;
+    }
+
+    /* База моделей */
+    #models .model-list {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px 20px;
+      justify-items: center;
+    }
+
+    #models .model-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgb(0 0 0 / 0.07);
+      overflow: hidden;
+      cursor: default;
+      transition: box-shadow 0.3s ease;
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 15px;
+      user-select: none;
+    }
+
+    #models .model-card:hover,
+    #models .model-card:focus-within {
+      box-shadow: 0 8px 28px rgb(0 0 0 / 0.15);
+      outline: none;
+    }
+
+    /* Show one photo at a time */
+    #models .model-photos-container {
+      position: relative;
+      width: 320px;
+      height: 160px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    #models .model-photos {
+      display: flex;
+      gap: 5px;
+      transition: transform 0.3s ease;
+      scroll-behavior: smooth;
+      overflow: hidden;
+      width: 320px;
+    }
+
+    #models .model-photos img {
+      flex: 0 0 320px;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    #models .model-photos img:hover,
+    #models .model-photos img:focus {
+      transform: scale(1.05);
+      outline: none;
+    }
+
+    #models .scroll-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: rgba(214, 51, 108, 0.85);
+      border: none;
+      color: white;
       font-size: 1.5rem;
-      width: 3rem;
-      height: 3rem;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      transition: background-color 0.3s ease;
+      user-select: none;
     }
-  }
-</style>
+
+    #models .scroll-btn:hover,
+    #models .scroll-btn:focus {
+      background-color: var(--accent-color);
+      outline: none;
+    }
+
+    #models .scroll-btn.left {
+      left: 5px;
+    }
+
+    #models .scroll-btn.right {
+      right: 5px;
+    }
+
+    #models .model-info {
+      padding: 12px 18px 18px;
+      text-align: center;
+    }
+
+    #models .model-info h3 {
+      margin: 0 0 6px 0;
+      font-family: 'Playfair Display', serif;
+      color: var(--primary-color);
+      font-size: 1.4rem;
+    }
+
+    #models .model-info p {
+      margin: 0;
+      font-size: 1.1rem;
+      color: var(--secondary-color);
+      font-weight: 600;
+      line-height: 1.3;
+      white-space: nowrap;
+    }
+
+    /* Обучение */
+    #training .training-content {
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    #training .training-content p {
+      font-size: 1.1rem;
+      color: var(--secondary-color);
+      margin-bottom: 35px;
+      line-height: 1.7;
+    }
+
+    #training .training-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    #training .training-item {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 3px 15px rgb(0 0 0 / 0.1);
+      padding: 20px 25px;
+      flex: 1 1 260px;
+      max-width: 320px;
+      transition: box-shadow 0.3s ease;
+      cursor: default;
+    }
+
+    #training .training-item:hover,
+    #training .training-item:focus-within {
+      box-shadow: 0 8px 30px rgb(0 0 0 / 0.15);
+      outline: none;
+    }
+
+    #training .training-item h4 {
+      margin-top: 0;
+      font-family: 'Playfair Display', serif;
+      color: var(--primary-color);
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+
+    #training .training-item p {
+      font-size: 1rem;
+      color: var(--secondary-color);
+      margin: 0;
+    }
+
+    /* Контакты */
+    #contacts .contact-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 6px 24px rgb(0 0 0 / 0.1);
+      padding: 30px 35px;
+    }
+
+    #contacts form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    #contacts label {
+      font-weight: 600;
+      color: var(--secondary-color);
+      font-size: 0.95rem;
+    }
+
+    #contacts input,
+    #contacts textarea {
+      padding: 10px 12px;
+      font-size: 1rem;
+      border: 2px solid var(--light-gray);
+      border-radius: 8px;
+      resize: vertical;
+      font-family: inherit;
+      transition: border-color 0.3s ease;
+    }
+
+    #contacts input:focus,
+    #contacts textarea:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 6px var(--accent-color);
+    }
+
+    #contacts button {
+      background-color: var(--primary-color);
+      color: white;
+      font-weight: 700;
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #contacts button:hover,
+    #contacts button:focus {
+      background-color: var(--accent-color);
+      outline: none;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 20px 10px;
+      background-color: var(--secondary-color);
+      color: white;
+      font-size: 0.9rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      #models .model-list {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      nav ul {
+        position: absolute;
+        top: 60px;
+        right: 20px;
+        background-color: var(--secondary-color);
+        flex-direction: column;
+        width: 160px;
+        border-radius: 8px;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+      }
+
+      nav.open ul {
+        max-height: 300px;
+      }
+
+      nav ul li {
+        text-align: right;
+        margin: 10px 0;
+      }
+
+      nav a {
+        font-size: 1.1rem;
+      }
+
+      /* Show three dots menu toggle */
+      .menu-toggle {
+        display: block;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>Каталог моделей для выставок</h1>
-  <div id="catalog" role="list" aria-label="Каталог моделей">
-    <!-- Model cards will be inserted here -->
-  </div>
-
-  <div id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div id="modalContent">
-      <div id="modalHeader">
-        <span id="modalTitle"></span>
-        <button id="closeBtn" aria-label="Закрыть">&times;</button>
-      </div>
-      <div id="modalBody">
-        <button class="navBtn" id="prevBtn" aria-label="Предыдущая фотография">&#10094;</button>
-        <img id="modalImage" src="" alt="" />
-        <button class="navBtn" id="nextBtn" aria-label="Следующая фотография">&#10095;</button>
-      </div>
+  <header>
+    <div class="container" role="banner">
+      <nav role="navigation" aria-label="Основная навигация">
+        <div class="logo" tabindex="0">Yankovskaya Agency</div>
+        <div class="menu-toggle" aria-label="Открыть меню" role="button" tabindex="0"></div>
+        <ul>
+          <li><a href="#about">О нас</a></li>
+          <li><a href="#works">Наши работы</a></li>
+          <li><a href="#models">База моделей</a></li>
+          <li><a href="#training">Обучение</a></li>
+          <li><a href="#contacts">Контакты</a></li>
+        </ul>
+      </nav>
     </div>
-  </div>
+  </header>
+  <main>
+    <section id="about" tabindex="0" aria-label="Раздел О нас">
+      <h2 class="section-title">О нас</h2>
+      <p>
+        Мы — профессиональная команда, занимающаяся продвижением талантливых девушек моделей для выставок и мероприятий.
+        Наша миссия — помочь моделям раскрыть свой потенциал и найти выгодные возможности в индустрии.
+        Мы гордимся индивидуальным подходом и высокими стандартами качества.
+      </p>
+    </section>
+
+    <section id="works" tabindex="0" aria-label="Раздел Наши работы">
+      <h2 class="section-title">Наши работы</h2>
+      <div class="gallery" aria-label="Фотогалерея наших работ">
+        <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80" alt="Модель на выставке, фото 1" tabindex="0" />
+        <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=600&q=80" alt="Модель на мероприятии, фото 2" tabindex="0" />
+        <img src="https://images.unsplash.com/photo-1531058020387-c6e99c3679fe?auto=format&fit=crop&w=600&q=80" alt="Портрет модели, фото 3" tabindex="0" />
+        <img src="https://images.unsplash.com/photo-1566753323558-f4e0952af115?auto=format&fit=crop&w=600&q=80" alt="Модель на подиуме, фото 4" tabindex="0" />
+      </div>
+    </section>
+
+    <section id="models" tabindex="0" aria-label="Раздел База моделей">
+      <h2 class="section-title">База моделей</h2>
+      <div class="model-list" aria-live="polite">
+        <article class="model-card" tabindex="0" aria-label="Модель Анастасия, 24 года, параметры 90-60-90">
+          <div class="model-photos-container">
+            <button class="scroll-btn left" aria-label="Прокрутить фотографии влево">&#8592;</button>
+            <div class="model-photos" tabindex="0" role="group" aria-label="Фотографии модели Анастасия">
+              <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Анастасия фото 1" tabindex="0" />
+              <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80" alt="Анастасия фото 2" tabindex="0" />
+              <img src="https://images.unsplash.com/photo-1556753354-30c0a280b91f?auto=format&fit=crop&w=400&q=80" alt="Анастасия фото 3" tabindex="0" />
+            </div>
+            <button class="scroll-btn right" aria-label="Прокрутить фотографии вправо">&#8594;</button>
+          </div>
+          <div class="model-info">
+            <h3>Анастасия</h3>
+            <p>24 года · 175 см · 90-60-90</p>
+          </div>
+        </article>
+        <article class="model-card" tabindex="0" aria-label="Модель Елена, 22 года, параметры 88-58-87">
+          <div class="model-photos-container">
+            <button class="scroll-btn left" aria-label="Прокрутить фотографии влево">&#8592;</button>
+            <div class="model-photos" tabindex="0" role="group" aria-label="Фотографии модели Елена">
+              <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="Елена фото 1" tabindex="0" />
+              <img src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=400&q=80" alt="Елена фото 2" tabindex="0" />
+              <img src="https://images.unsplash.com/photo-1474631245212-32dc3c8310c6?auto=format&fit=crop&w=400&q=80" alt="Елена фото 3" tabindex="0" />
+            </div>
+            <button class="scroll-btn right" aria-label="Прокрутить фотографии вправо">&#8594;</button>
+          </div>
+          <div class="model-info">
+            <h3>Елена</h3>
+            <p>22 года · 170 см · 88-58-87</p>
+          </div>
+        </article>
+        <article class="model-card" tabindex="0" aria-label="Модель Виктория, 26 лет, параметры 92-62-91">
+          <div class="model-photos-container">
+            <button class="scroll-btn left" aria-label="Прокрутить фотографии влево">&#8592;</button>
+            <div class="model-photos" tabindex="0" role="group" aria-label="Фотографии модели Виктория">
+              <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Виктория фото 1" tabindex="0" />
+              <img src="https://images.unsplash.com/photo-1463453091185-61582044d556?auto=format&fit=crop&w=400&q=80" alt="Виктория фото 2" tabindex="0" />
+              <img src="https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?auto=format&fit=crop&w=400&q=80" alt="Виктория фото 3" tabindex="0" />
+            </div>
+            <button class="scroll-btn right" aria-label="Прокрутить фотографии вправо">&#8594;</button>
+          </div>
+          <div class="model-info">
+            <h3>Виктория</h3>
+            <p>26 лет · 178 см · 92-62-91</p>
+          </div>
+        </article>
+        <article class="model-card" tabindex="0" aria-label="Модель Марина, 23 года, параметры 89-59-88">
+          <div class="model-photos-container">
+            <button class="scroll-btn left" aria-label="Прокрутить фотографии влево">&#8592;</button>
+            <div class="model-photos" tabindex="0" role="group" aria-label="Фотографии модели Марина">
+              <img src="https://randomuser.me/api/portraits/women/48.jpg" alt="Марина фото 1" tabindex="0" />
+              <img src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=400&q=80" alt="Марина фото 2" tabindex="0" />
+              <img src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=400&q=80" alt="Марина фото 3" tabindex="0" />
+            </div>
+            <button class="scroll-btn right" aria-label="Прокрутить фотографии вправо">&#8594;</button>
+          </div>
+          <div class="model-info">
+            <h3>Марина</h3>
+            <p>23 года · 168 см · 89-59-88</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="training" tabindex="0" aria-label="Раздел Обучение">
+      <h2 class="section-title">Обучение</h2>
+      <div class="training-content">
+        <p>
+          Мы предлагаем профессиональные курсы и тренинги для моделей, которые хотят улучшить свои навыки и добиться успеха.
+          Обучение включает практические занятия, мастер-классы и индивидуальный коучинг.
+        </p>
+        <div class="training-list">
+          <article class="training-item" tabindex="0" aria-label="Курс: Основы моделинга">
+            <h4>Основы моделинга</h4>
+            <p>Введение в профессию, базовые навыки позирования, работа с камерой.</p>
+          </article>
+          <article class="training-item" tabindex="0" aria-label="Тренинг: Подготовка к мероприятиям">
+            <h4>Подготовка к мероприятиям</h4>
+            <p>Советы по внешнему виду, этикет, уверенность на сцене и взаимодействие с аудиторией.</p>
+          </article>
+          <article class="training-item" tabindex="0" aria-label="Мастер-класс: Карьерное развитие">
+            <h4>Карьерное развитие</h4>
+            <p>Планирование карьеры, работа с агентствами и продвижение себя как бренда.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="contacts" tabindex="0" aria-label="Раздел Контакты">
+      <h2 class="section-title">Контакты</h2>
+      <div class="contact-container">
+        <form id="contactForm" aria-label="Форма обратной связи">
+          <label for="name">Ваше имя</label>
+          <input type="text" id="name" name="name" placeholder="Введите ваше имя" required aria-required="true" />
+          
+          <label for="email">Электронная почта</label>
+          <input type="email" id="email" name="email" placeholder="Введите ваш email" required aria-required="true" />
+          
+          <label for="message">Сообщение</label>
+          <textarea id="message" name="message" rows="5" placeholder="Напишите ваше сообщение" required aria-required="true"></textarea>
+          
+          <button type="submit">Отправить</button>
+          <p id="formMessage" role="alert" aria-live="polite" style="margin-top:10px; color: var(--accent-color);"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    © 2024 Yankovskaya Agency — Продвижение моделей для выставок и мероприятий
+  </footer>
 
   <script>
-    const models = [
-      {
-        name: 'Модель А',
-        age: 22,
-        height: 175,
-        bust: 88,
-        waist: 60,
-        hips: 90,
-        photos: [
-          'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=800&q=80',
-          'https://images.unsplash.com/photo-1499714608240-22fc6ad53fb2?auto=format&fit=crop&w=800&q=80',
-          'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=800&q=80'
-        ]
-      },
-      {
-        name: 'Модель Б',
-        age: 25,
-        height: 178,
-        bust: 90,
-        waist: 62,
-        hips: 92,
-        photos: [
-          'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=800&q=80',
-          'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=800&q=80'
-        ]
-      },
-      {
-        name: 'Модель В',
-        age: 20,
-        height: 173,
-        bust: 85,
-        waist: 58,
-        hips: 88,
-        photos: [
-          'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=800&q=80',
-          'https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=800&q=80',
-          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=800&q=80',
-          'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=800&q=80'
-        ]
-      },
-      {
-        name: 'Модель Г',
-        age: 23,
-        height: 176,
-        bust: 89,
-        waist: 61,
-        hips: 91,
-        photos: [
-          'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=801&q=80',
-          'https://images.unsplash.com/photo-1499714608240-22fc6ad53fb3?auto=format&fit=crop&w=801&q=80',
-          'https://images.unsplash.com/photo-1515377905703-c4788e51af16?auto=format&fit=crop&w=801&q=80'
-        ]
-      },
-      {
-        name: 'Модель Д',
-        age: 24,
-        height: 174,
-        bust: 87,
-        waist: 59,
-        hips: 89,
-        photos: [
-          'https://images.unsplash.com/photo-1544005313-94ddf0286df3?auto=format&fit=crop&w=801&q=80',
-          'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f92?auto=format&fit=crop&w=801&q=80'
-        ]
-      },
-      {
-        name: 'Модель Е',
-        age: 21,
-        height: 177,
-        bust: 91,
-        waist: 63,
-        hips: 93,
-        photos: [
-          'https://images.unsplash.com/photo-1524504388940-b1c1722653e2?auto=format&fit=crop&w=801&q=80',
-          'https://images.unsplash.com/photo-1527980965255-d3b416303d13?auto=format&fit=crop&w=801&q=80',
-          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fdf?auto=format&fit=crop&w=801&q=80',
-          'https://images.unsplash.com/photo-1494790108377-be9c29b29331?auto=format&fit=crop&w=801&q=80'
-        ]
-      },
-      {
-        name: 'Модель Ж',
-        age: 22,
-        height: 175,
-        bust: 88,
-        waist: 60,
-        hips: 90,
-        photos: [
-          'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f93?auto=format&fit=crop&w=802&q=80',
-          'https://images.unsplash.com/photo-1499714608240-22fc6ad53fb4?auto=format&fit=crop&w=802&q=80',
-          'https://images.unsplash.com/photo-1515377905703-c4788e51af17?auto=format&fit=crop&w=802&q=80'
-        ]
-      },
-      {
-        name: 'Модель З',
-        age: 24,
-        height: 173,
-        bust: 85,
-        waist: 58,
-        hips: 88,
-        photos: [
-          'https://images.unsplash.com/photo-1544005313-94ddf0286df4?auto=format&fit=crop&w=802&q=80',
-          'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f94?auto=format&fit=crop&w=802&q=80'
-        ]
-      },
-      {
-        name: 'Модель И',
-        age: 23,
-        height: 176,
-        bust: 89,
-        waist: 61,
-        hips: 91,
-        photos: [
-          'https://images.unsplash.com/photo-1524504388940-b1c1722653e3?auto=format&fit=crop&w=802&q=80',
-          'https://images.unsplash.com/photo-1527980965255-d3b416303d14?auto=format&fit=crop&w=802&q=80',
-          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fe0?auto=format&fit=crop&w=802&q=80',
-          'https://images.unsplash.com/photo-1494790108377-be9c29b29332?auto=format&fit=crop&w=802&q=80'
-        ]
-      },
-      {
-        name: 'Модель К',
-        age: 25,
-        height: 178,
-        bust: 90,
-        waist: 62,
-        hips: 92,
-        photos: [
-          'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f95?auto=format&fit=crop&w=803&q=80',
-          'https://images.unsplash.com/photo-1499714608240-22fc6ad53fb5?auto=format&fit=crop&w=803&q=80',
-          'https://images.unsplash.com/photo-1515377905703-c4788e51af18?auto=format&fit=crop&w=803&q=80'
-        ]
-      },
-      {
-        name: 'Модель Л',
-        age: 20,
-        height: 173,
-        bust: 85,
-        waist: 58,
-        hips: 88,
-        photos: [
-          'https://images.unsplash.com/photo-1544005313-94ddf0286df5?auto=format&fit=crop&w=803&q=80',
-          'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f96?auto=format&fit=crop&w=803&q=80'
-        ]
-      },
-      {
-        name: 'Модель М',
-        age: 21,
-        height: 177,
-        bust: 91,
-        waist: 63,
-        hips: 93,
-        photos: [
-          'https://images.unsplash.com/photo-1524504388940-b1c1722653e4?auto=format&fit=crop&w=803&q=80',
-          'https://images.unsplash.com/photo-1527980965255-d3b416303d15?auto=format&fit=crop&w=803&q=80',
-          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fe1?auto=format&fit=crop&w=803&q=80',
-          'https://images.unsplash.com/photo-1494790108377-be9c29b29333?auto=format&fit=crop&w=803&q=80'
-        ]
+    // Простая обработка формы с выводом сообщения об успехе или ошибке
+    document.getElementById('contactForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const name = this.name.value.trim();
+      const email = this.email.value.trim();
+      const message = this.message.value.trim();
+      const formMessage = document.getElementById('formMessage');
+
+      if(name.length < 2) {
+        formMessage.textContent = 'Пожалуйста, введите корректное имя.';
+        return;
       }
-    ];
 
-    const catalog = document.getElementById('catalog');
-    const modal = document.getElementById('modal');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalImg = document.getElementById('modalImage');
-    const closeBtn = document.getElementById('closeBtn');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-
-    let currentModelIndex = 0;
-    let currentPhotoIndex = 0;
-
-    function createModelCard(model, index) {
-      const card = document.createElement('div');
-      card.className = 'model-card';
-      card.tabIndex = 0;
-      card.setAttribute('role', 'listitem');
-      card.setAttribute('aria-label', `${model.name}, возраст ${model.age} лет, рост ${model.height} см, размеры ${model.bust}-${model.waist}-${model.hips}, открыть галерею фотографий`);
-
-      const thumb = document.createElement('img');
-      thumb.className = 'model-thumb';
-      thumb.src = model.photos[0];
-      thumb.alt = `Фотография модели ${model.name}`;
-
-      const info = document.createElement('div');
-      info.className = 'model-info';
-
-      const name = document.createElement('h2');
-      name.className = 'model-name';
-      name.textContent = model.name;
-
-      const attributes = document.createElement('p');
-      attributes.className = 'model-attributes';
-      attributes.textContent =
-        `Возраст: ${model.age} лет\n` +
-        `Рост: ${model.height} см\n` +
-        `${model.bust}-${model.waist}-${model.hips}`;
-
-      info.appendChild(name);
-      info.appendChild(attributes);
-      card.appendChild(thumb);
-      card.appendChild(info);
-
-      card.addEventListener('click', () => {
-        openModal(index);
-      });
-      card.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          openModal(index);
-        }
-      });
-
-      return card;
-    }
-
-    function renderCatalog() {
-      catalog.innerHTML = '';
-      models.forEach((model, idx) => {
-        catalog.appendChild(createModelCard(model, idx));
-      });
-    }
-
-    function openModal(modelIndex) {
-      currentModelIndex = modelIndex;
-      currentPhotoIndex = 0;
-      updateModalImage();
-      modalTitle.textContent = models[modelIndex].name;
-      modal.classList.add('active');
-      closeBtn.focus();
-      document.body.style.overflow = 'hidden'; // Prevent background scroll
-      document.addEventListener('keydown', handleKeyDown);
-    }
-
-    function closeModal() {
-      modal.classList.remove('active');
-      document.body.style.overflow = '';
-      document.removeEventListener('keydown', handleKeyDown);
-    }
-
-    function updateModalImage() {
-      const model = models[currentModelIndex];
-      const photo = model.photos[currentPhotoIndex];
-      modalImg.src = photo;
-      modalImg.alt = `${model.name} - фотография ${currentPhotoIndex + 1} из ${model.photos.length}`;
-    }
-
-    function showPrevPhoto() {
-      const model = models[currentModelIndex];
-      currentPhotoIndex = (currentPhotoIndex - 1 + model.photos.length) % model.photos.length;
-      updateModalImage();
-    }
-
-    function showNextPhoto() {
-      const model = models[currentModelIndex];
-      currentPhotoIndex = (currentPhotoIndex + 1) % model.photos.length;
-      updateModalImage();
-    }
-
-    function handleKeyDown(e) {
-      if (!modal.classList.contains('active')) return;
-      switch(e.key) {
-        case 'Escape':
-          closeModal();
-          break;
-        case 'ArrowLeft':
-          showPrevPhoto();
-          break;
-        case 'ArrowRight':
-          showNextPhoto();
-          break;
+      const emailPattern = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+      if(!emailPattern.test(email)) {
+        formMessage.textContent = 'Пожалуйста, введите корректный email.';
+        return;
       }
-    }
 
-    closeBtn.addEventListener('click', closeModal);
-    prevBtn.addEventListener('click', showPrevPhoto);
-    nextBtn.addEventListener('click', showNextPhoto);
+      if(message.length < 5) {
+        formMessage.textContent = 'Сообщение слишком короткое.';
+        return;
+      }
 
-    modal.addEventListener('click', (e) => {
-      if(e.target === modal) {
-        closeModal();
+      formMessage.style.color = 'green';
+      formMessage.textContent = 'Ваше сообщение успешно отправлено! Спасибо за обращение.';
+      this.reset();
+    });
+
+    // Скролл кнопки для пролистывания фото моделей (по одной фото показываем)
+    document.querySelectorAll('#models .model-card').forEach(card => {
+      const leftBtn = card.querySelector('.scroll-btn.left');
+      const rightBtn = card.querySelector('.scroll-btn.right');
+      const photos = card.querySelector('.model-photos');
+      const photoWidth = photos.querySelector('img').offsetWidth + 5; // image width + gap
+
+      leftBtn.addEventListener('click', () => {
+        photos.scrollBy({ left: -photoWidth, behavior: 'smooth' });
+      });
+      rightBtn.addEventListener('click', () => {
+        photos.scrollBy({ left: photoWidth, behavior: 'smooth' });
+      });
+    });
+
+    // Mobile menu toggle with three dots button
+    const nav = document.querySelector('nav');
+    const menuToggle = document.querySelector('.menu-toggle');
+    const navUl = nav.querySelector('ul');
+
+    menuToggle.addEventListener('click', () => {
+      nav.classList.toggle('open');
+    });
+
+    // Allow toggle menu by keyboard (Enter or Space) on .menu-toggle
+    menuToggle.addEventListener('keydown', (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        nav.classList.toggle('open');
       }
     });
 
-    renderCatalog();
+    // Close menu when a navigation link is clicked (mobile)
+    navUl.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        if (nav.classList.contains('open')) {
+          nav.classList.remove('open');
+        }
+      });
+    });
   </script>
 </body>
 </html>
+
