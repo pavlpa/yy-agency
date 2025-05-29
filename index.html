@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Каталог моделей для выставок</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+  :root {
+    --primary-color: #005f73;
+    --secondary-color: #0a9396;
+    --background-color: #e9f1f7;
+    --text-color: #222;
+    --text-muted: #555;
+    --modal-bg: rgba(0, 0, 0, 0.8);
+    --border-radius: 10px;
+    --transition: 0.3s ease;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+  }
+
+  h1 {
+    margin-bottom: 2rem;
+    font-weight: 600;
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    user-select: none;
+    text-align: center;
+  }
+
+  #catalog {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(260px,1fr));
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 1200px;
+  }
+
+  .model-card {
+    background: white;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    transition: transform var(--transition);
+    outline-offset: 4px;
+  }
+
+  .model-card:hover,
+  .model-card:focus {
+    transform: scale(1.03);
+    outline: 2px solid var(--secondary-color);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  }
+
+  .model-thumb {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    user-select: none;
+  }
+
+  .model-info {
+    padding: 1rem 1.25rem;
+    text-align: center;
+  }
+
+  .model-name {
+    font-weight: 600;
+    font-size: 1.3rem;
+    margin: 0 0 0.5rem;
+    user-select: none;
+    color: var(--secondary-color);
+  }
+
+  .model-attributes {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    white-space: pre-line;
+  }
+
+  /* Modal Styles */
+  #modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--modal-bg);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    padding: 1.5rem;
+  }
+
+  #modal.active {
+    display: flex;
+  }
+
+  #modalContent {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+  }
+
+  #modalHeader {
+    padding: 1rem 1.5rem;
+    background: var(--secondary-color);
+    color: white;
+    font-weight: 600;
+    font-size: 1.5rem;
+    user-select: none;
+  }
+
+  #modalBody {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: #f0f4f8;
+  }
+
+  #modalImage {
+    max-width: 100%;
+    max-height: 80vh;
+    user-select: none;
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
+    object-fit: contain;
+  }
+
+  /* Navigation Buttons */
+  .navBtn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.4);
+    border: none;
+    color: white;
+    font-size: 2rem;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .navBtn:hover,
+  .navBtn:focus {
+    background: rgba(0,0,0,0.7);
+    outline: none;
+  }
+
+  #prevBtn {
+    left: 0.7rem;
+  }
+
+  #nextBtn {
+    right: 0.7rem;
+  }
+
+  /* Close button */
+  #closeBtn {
+    position: absolute;
+    top: 0.7rem;
+    right: 0.7rem;
+    background: transparent;
+    border: none;
+    font-size: 2rem;
+    color: white;
+    cursor: pointer;
+    user-select: none;
+    transition: color var(--transition);
+  }
+
+  #closeBtn:hover,
+  #closeBtn:focus {
+    color: #ff6b6b;
+    outline: none;
+  }
+
+  @media (max-width: 600px) {
+    h1 {
+      font-size: 1.8rem;
+    }
+    .navBtn {
+      font-size: 1.5rem;
+      width: 3rem;
+      height: 3rem;
+    }
+  }
+</style>
+</head>
+<body>
+  <h1>Каталог моделей для выставок</h1>
+  <div id="catalog" role="list" aria-label="Каталог моделей">
+    <!-- Model cards will be inserted here -->
+  </div>
+
+  <div id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div id="modalContent">
+      <div id="modalHeader">
+        <span id="modalTitle"></span>
+        <button id="closeBtn" aria-label="Закрыть">&times;</button>
+      </div>
+      <div id="modalBody">
+        <button class="navBtn" id="prevBtn" aria-label="Предыдущая фотография">&#10094;</button>
+        <img id="modalImage" src="" alt="" />
+        <button class="navBtn" id="nextBtn" aria-label="Следующая фотография">&#10095;</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const models = [
+      {
+        name: 'Модель А',
+        age: 22,
+        height: 175,
+        bust: 88,
+        waist: 60,
+        hips: 90,
+        photos: [
+          'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=800&q=80',
+          'https://images.unsplash.com/photo-1499714608240-22fc6ad53fb2?auto=format&fit=crop&w=800&q=80',
+          'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=800&q=80'
+        ]
+      },
+      {
+        name: 'Модель Б',
+        age: 25,
+        height: 178,
+        bust: 90,
+        waist: 62,
+        hips: 92,
+        photos: [
+          'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=800&q=80',
+          'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=800&q=80'
+        ]
+      },
+      {
+        name: 'Модель В',
+        age: 20,
+        height: 173,
+        bust: 85,
+        waist: 58,
+        hips: 88,
+        photos: [
+          'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=800&q=80',
+          'https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=800&q=80',
+          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=800&q=80',
+          'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=800&q=80'
+        ]
+      },
+      {
+        name: 'Модель Г',
+        age: 23,
+        height: 176,
+        bust: 89,
+        waist: 61,
+        hips: 91,
+        photos: [
+          'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=801&q=80',
+          'https://images.unsplash.com/photo-1499714608240-22fc6ad53fb3?auto=format&fit=crop&w=801&q=80',
+          'https://images.unsplash.com/photo-1515377905703-c4788e51af16?auto=format&fit=crop&w=801&q=80'
+        ]
+      },
+      {
+        name: 'Модель Д',
+        age: 24,
+        height: 174,
+        bust: 87,
+        waist: 59,
+        hips: 89,
+        photos: [
+          'https://images.unsplash.com/photo-1544005313-94ddf0286df3?auto=format&fit=crop&w=801&q=80',
+          'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f92?auto=format&fit=crop&w=801&q=80'
+        ]
+      },
+      {
+        name: 'Модель Е',
+        age: 21,
+        height: 177,
+        bust: 91,
+        waist: 63,
+        hips: 93,
+        photos: [
+          'https://images.unsplash.com/photo-1524504388940-b1c1722653e2?auto=format&fit=crop&w=801&q=80',
+          'https://images.unsplash.com/photo-1527980965255-d3b416303d13?auto=format&fit=crop&w=801&q=80',
+          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fdf?auto=format&fit=crop&w=801&q=80',
+          'https://images.unsplash.com/photo-1494790108377-be9c29b29331?auto=format&fit=crop&w=801&q=80'
+        ]
+      },
+      {
+        name: 'Модель Ж',
+        age: 22,
+        height: 175,
+        bust: 88,
+        waist: 60,
+        hips: 90,
+        photos: [
+          'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f93?auto=format&fit=crop&w=802&q=80',
+          'https://images.unsplash.com/photo-1499714608240-22fc6ad53fb4?auto=format&fit=crop&w=802&q=80',
+          'https://images.unsplash.com/photo-1515377905703-c4788e51af17?auto=format&fit=crop&w=802&q=80'
+        ]
+      },
+      {
+        name: 'Модель З',
+        age: 24,
+        height: 173,
+        bust: 85,
+        waist: 58,
+        hips: 88,
+        photos: [
+          'https://images.unsplash.com/photo-1544005313-94ddf0286df4?auto=format&fit=crop&w=802&q=80',
+          'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f94?auto=format&fit=crop&w=802&q=80'
+        ]
+      },
+      {
+        name: 'Модель И',
+        age: 23,
+        height: 176,
+        bust: 89,
+        waist: 61,
+        hips: 91,
+        photos: [
+          'https://images.unsplash.com/photo-1524504388940-b1c1722653e3?auto=format&fit=crop&w=802&q=80',
+          'https://images.unsplash.com/photo-1527980965255-d3b416303d14?auto=format&fit=crop&w=802&q=80',
+          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fe0?auto=format&fit=crop&w=802&q=80',
+          'https://images.unsplash.com/photo-1494790108377-be9c29b29332?auto=format&fit=crop&w=802&q=80'
+        ]
+      },
+      {
+        name: 'Модель К',
+        age: 25,
+        height: 178,
+        bust: 90,
+        waist: 62,
+        hips: 92,
+        photos: [
+          'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f95?auto=format&fit=crop&w=803&q=80',
+          'https://images.unsplash.com/photo-1499714608240-22fc6ad53fb5?auto=format&fit=crop&w=803&q=80',
+          'https://images.unsplash.com/photo-1515377905703-c4788e51af18?auto=format&fit=crop&w=803&q=80'
+        ]
+      },
+      {
+        name: 'Модель Л',
+        age: 20,
+        height: 173,
+        bust: 85,
+        waist: 58,
+        hips: 88,
+        photos: [
+          'https://images.unsplash.com/photo-1544005313-94ddf0286df5?auto=format&fit=crop&w=803&q=80',
+          'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f96?auto=format&fit=crop&w=803&q=80'
+        ]
+      },
+      {
+        name: 'Модель М',
+        age: 21,
+        height: 177,
+        bust: 91,
+        waist: 63,
+        hips: 93,
+        photos: [
+          'https://images.unsplash.com/photo-1524504388940-b1c1722653e4?auto=format&fit=crop&w=803&q=80',
+          'https://images.unsplash.com/photo-1527980965255-d3b416303d15?auto=format&fit=crop&w=803&q=80',
+          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fe1?auto=format&fit=crop&w=803&q=80',
+          'https://images.unsplash.com/photo-1494790108377-be9c29b29333?auto=format&fit=crop&w=803&q=80'
+        ]
+      }
+    ];
+
+    const catalog = document.getElementById('catalog');
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalImg = document.getElementById('modalImage');
+    const closeBtn = document.getElementById('closeBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    let currentModelIndex = 0;
+    let currentPhotoIndex = 0;
+
+    function createModelCard(model, index) {
+      const card = document.createElement('div');
+      card.className = 'model-card';
+      card.tabIndex = 0;
+      card.setAttribute('role', 'listitem');
+      card.setAttribute('aria-label', `${model.name}, возраст ${model.age} лет, рост ${model.height} см, размеры ${model.bust}-${model.waist}-${model.hips}, открыть галерею фотографий`);
+
+      const thumb = document.createElement('img');
+      thumb.className = 'model-thumb';
+      thumb.src = model.photos[0];
+      thumb.alt = `Фотография модели ${model.name}`;
+
+      const info = document.createElement('div');
+      info.className = 'model-info';
+
+      const name = document.createElement('h2');
+      name.className = 'model-name';
+      name.textContent = model.name;
+
+      const attributes = document.createElement('p');
+      attributes.className = 'model-attributes';
+      attributes.textContent =
+        `Возраст: ${model.age} лет\n` +
+        `Рост: ${model.height} см\n` +
+        `${model.bust}-${model.waist}-${model.hips}`;
+
+      info.appendChild(name);
+      info.appendChild(attributes);
+      card.appendChild(thumb);
+      card.appendChild(info);
+
+      card.addEventListener('click', () => {
+        openModal(index);
+      });
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openModal(index);
+        }
+      });
+
+      return card;
+    }
+
+    function renderCatalog() {
+      catalog.innerHTML = '';
+      models.forEach((model, idx) => {
+        catalog.appendChild(createModelCard(model, idx));
+      });
+    }
+
+    function openModal(modelIndex) {
+      currentModelIndex = modelIndex;
+      currentPhotoIndex = 0;
+      updateModalImage();
+      modalTitle.textContent = models[modelIndex].name;
+      modal.classList.add('active');
+      closeBtn.focus();
+      document.body.style.overflow = 'hidden'; // Prevent background scroll
+      document.addEventListener('keydown', handleKeyDown);
+    }
+
+    function closeModal() {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+      document.removeEventListener('keydown', handleKeyDown);
+    }
+
+    function updateModalImage() {
+      const model = models[currentModelIndex];
+      const photo = model.photos[currentPhotoIndex];
+      modalImg.src = photo;
+      modalImg.alt = `${model.name} - фотография ${currentPhotoIndex + 1} из ${model.photos.length}`;
+    }
+
+    function showPrevPhoto() {
+      const model = models[currentModelIndex];
+      currentPhotoIndex = (currentPhotoIndex - 1 + model.photos.length) % model.photos.length;
+      updateModalImage();
+    }
+
+    function showNextPhoto() {
+      const model = models[currentModelIndex];
+      currentPhotoIndex = (currentPhotoIndex + 1) % model.photos.length;
+      updateModalImage();
+    }
+
+    function handleKeyDown(e) {
+      if (!modal.classList.contains('active')) return;
+      switch(e.key) {
+        case 'Escape':
+          closeModal();
+          break;
+        case 'ArrowLeft':
+          showPrevPhoto();
+          break;
+        case 'ArrowRight':
+          showNextPhoto();
+          break;
+      }
+    }
+
+    closeBtn.addEventListener('click', closeModal);
+    prevBtn.addEventListener('click', showPrevPhoto);
+    nextBtn.addEventListener('click', showNextPhoto);
+
+    modal.addEventListener('click', (e) => {
+      if(e.target === modal) {
+        closeModal();
+      }
+    });
+
+    renderCatalog();
+  </script>
+</body>
+</html>
